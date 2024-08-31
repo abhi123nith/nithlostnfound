@@ -1,0 +1,53 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+class Post {
+  final String? id;
+  final String userName;
+  final String userProfilePicUrl; // User profile picture URL
+  final String itemType;
+  final String location; // General location
+  final String specificLocation; // Specific location if available
+  final Timestamp timestamp; // Time of post
+  final String description;
+  final List<String> imageUrls; // List of image URLs
+
+  Post({
+    this.id,
+    required this.userName,
+    this.userProfilePicUrl = '', // Provide default empty string if not required
+    this.itemType = '',
+    this.location = '',
+    this.specificLocation = '',
+    required this.timestamp,
+    this.description = '',
+    this.imageUrls = const [],
+  });
+
+  factory Post.fromJson(Map<String, dynamic> json) {
+    return Post(
+      id: json['id'] as String?,
+      userName: json['userName'] as String? ?? '', // Provide default empty string if null
+      userProfilePicUrl: json['userProfilePicUrl'] as String? ?? '',
+      itemType: json['itemType'] as String? ?? '',
+      location: json['location'] as String? ?? '',
+      specificLocation: json['specificLocation'] as String? ?? '',
+      timestamp: json['timestamp'] as Timestamp? ?? Timestamp.now(), // Provide default value if null
+      description: json['description'] as String? ?? '',
+      imageUrls: (json['imageUrls'] as List<dynamic>?)?.map((e) => e as String).toList() ?? [],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'userName': userName,
+      'userProfilePicUrl': userProfilePicUrl,
+      'itemType': itemType,
+      'location': location,
+      'specificLocation': specificLocation,
+      'timestamp': timestamp,
+      'description': description,
+      'imageUrls': imageUrls,
+    };
+  }
+}

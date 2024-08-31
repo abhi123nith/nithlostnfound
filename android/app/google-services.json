@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "765941372951",
+    "firebase_url": "https://nithlostnfoundweb-default-rtdb.firebaseio.com",
+    "project_id": "nithlostnfoundweb",
+    "storage_bucket": "nithlostnfoundweb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:765941372951:android:9778c87f2be20693482452",
+        "android_client_info": {
+          "package_name": "com.lostnfound.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUXv7-j-d7i6BfNiy62eiMt07NsmVjjXQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
