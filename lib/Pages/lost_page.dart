@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:nithlostnfound/comment_bottom_sheet.dart';
 import 'package:nithlostnfound/post_card.dart';
@@ -13,17 +14,26 @@ class LostPage extends StatefulWidget {
 
 class _LostPageState extends State<LostPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final String userId = 'current_user_id'; // Replace with actual user ID
+  final User user = FirebaseAuth.instance.currentUser!;
+  late String userId;
+
+  @override
+  void initState() {
+    super.initState();
+    userId = user.uid;
+  }
 
   Future<void> _likePost(String postId, bool isLiked) async {
     final postDoc = _firestore.collection('lost_items').doc(postId);
     if (isLiked) {
       await postDoc.update({
         'likes': FieldValue.arrayUnion([userId]),
+        'likeCount': FieldValue.increment(1),
       });
     } else {
       await postDoc.update({
         'likes': FieldValue.arrayRemove([userId]),
+        'likeCount': FieldValue.increment(-1),
       });
     }
   }
@@ -40,6 +50,15 @@ class _LostPageState extends State<LostPage> {
     final data = postDoc.data();
     final content = data?['description'] ?? 'Check out this post!';
     Share.share(content, subject: 'Lost Post');
+  }
+
+  Future<int> _getCommentCount(String postId) async {
+    final commentsSnapshot = await _firestore
+        .collection('lost_items')
+        .doc(postId)
+        .collection('comments')
+        .get();
+    return commentsSnapshot.size;
   }
 
   Future<Map<String, dynamic>?> _fetchUserData(String userId) async {
@@ -67,32 +86,34 @@ class _LostPageState extends State<LostPage> {
             return Center(child: Text('Error: ${snapshot.error}'));
           }
 
-          return LayoutBuilder(
-            builder: (context, constraints) {
-              final isMobile = constraints.maxWidth < 600;
+          final isMobile = MediaQuery.of(context).size.width < 600;
+          final posts = snapshot.data!.docs.map((doc) {
+            final data = doc.data() as Map<String, dynamic>;
+            final postId = doc.id;
+            final description = data['description'] ?? '';
+            final userProfileId = data['userProfile'] ?? '';
+            final userName = data['postmaker'] ?? 'NITH_USER';
+            final timestamp = data['timestamp'] as Timestamp?;
+            final imageUrls = List<String>.from(data['imageUrls'] ?? []);
+            final location = data['location'] ?? '';
+            final specificLocation = data['specificLocation'] ?? '';
+            final postmakerId = data['postmakerUserId'] ?? '';
+            final likeCount = data['likeCount'] ?? 0;
+            final shareCount = data['shareCount'] ?? 0;
 
-              final posts = snapshot.data!.docs.map((doc) {
-                final data = doc.data() as Map<String, dynamic>;
-                final postId = doc.id;
-                final description = data['description'] ?? '';
-                final userProfileId = data['userProfile'] ?? '';
-                final timestamp = data['timestamp'] as Timestamp?;
-                final imageUrls = List<String>.from(data['imageUrls'] ?? []);
-                final location = data['location'] ?? '';
-                final specificLocation = data['specificLocation'] ?? '';
-                final postmaker = data['postmaker'] ?? 'NITH_USER';
-                return FutureBuilder<bool>(
-                  future: _hasLikedPost(postId),
-                  builder: (context, likeSnapshot) {
-                    final isLiked = likeSnapshot.data ?? false;
+            return FutureBuilder<bool>(
+              future: _hasLikedPost(postId),
+              builder: (context, likeSnapshot) {
+                final isLiked = likeSnapshot.data ?? false;
+
+                return FutureBuilder<int>(
+                  future: _getCommentCount(postId),
+                  builder: (context, commentCountSnapshot) {
+                    final commentCount = commentCountSnapshot.data ?? 0;
+
                     return FutureBuilder<Map<String, dynamic>?>(
                       future: _fetchUserData(userProfileId),
                       builder: (context, userSnapshot) {
-                        //   final userData = userSnapshot.data;
-
-                        const userProfileUrl =
-                            ''; // Add logic if you have a profile picture URL
-
                         return Padding(
                           padding: EdgeInsets.symmetric(
                             horizontal: isMobile ? 8.0 : 16.0,
@@ -112,29 +133,40 @@ class _LostPageState extends State<LostPage> {
                                   ),
                                 ],
                               ),
-                              child: PostCard(
-                                isLost: true,
-                                postId: postId,
-                                description: description,
-                                userProfile: userProfileUrl,
-                                userName: postmaker,
-                                timestamp: timestamp,
-                                imageUrls: imageUrls,
-                                isLiked: isLiked,
-                                specificlocation: specificLocation,
-                                onLike: () async {
-                                  await _likePost(postId, !isLiked);
-                                  setState(() {});
-                                },
-                                onShare: () => _sharePost(postId),
-                                onComment: () {
-                                  showModalBottomSheet(
-                                    context: context,
-                                    builder: (context) =>
-                                        CommentsBottomSheet(postId: postId),
+                              child: StatefulBuilder(
+                                builder: (context, setState) {
+                                  return PostCard(
+                                    isLost: true,
+                                    postId: postId,
+                                    description: description,
+                                    profilePicUrl: userProfileId,
+                                    userName: userName,
+                                    timestamp: timestamp,
+                                    imageUrls: imageUrls,
+                                    isLiked: isLiked,
+                                    specificlocation: specificLocation,
+                                    onLike: () async {
+                                      final newLikeStatus = !isLiked;
+                                      await _likePost(postId, newLikeStatus);
+                                      setState(() {});
+                                    },
+                                    onShare: () => _sharePost(postId),
+                                    onComment: () {
+                                      showModalBottomSheet(
+                                        context: context,
+                                        builder: (context) =>
+                                            CommentsBottomSheet(
+                                                postId: postId, isLost: true),
+                                      );
+                                    },
+                                    location: location,
+                                    currentuserId: userId,
+                                    postmakerUserId: postmakerId,
+                                    likeCount: likeCount,
+                                    shareCount: shareCount,
+                                    commentCount: commentCount,
                                   );
                                 },
-                                location: location,
                               ),
                             ),
                           ),
@@ -143,13 +175,13 @@ class _LostPageState extends State<LostPage> {
                     );
                   },
                 );
-              }).toList();
+              },
+            );
+          }).toList();
 
-              return ListView(
-                padding: EdgeInsets.symmetric(vertical: isMobile ? 16 : 24),
-                children: posts,
-              );
-            },
+          return ListView(
+            padding: EdgeInsets.symmetric(vertical: isMobile ? 16 : 24),
+            children: posts,
           );
         },
       ),

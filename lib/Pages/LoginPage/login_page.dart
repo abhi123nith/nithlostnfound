@@ -24,6 +24,72 @@ class _LoginPageState extends State<LoginPage> {
 
   final String _expectedDomain = '@nith.ac.in';
 
+  // Future<void> _login() async {
+  //   setState(() {
+  //     _isLoading = true;
+  //     _errorMessage = null;
+  //     _verificationMessage = null;
+  //     _domainErrorMessage = null;
+  //   });
+
+  //   try {
+  //     // Check if the email domain is correct
+  //     if (!_emailController.text.trim().endsWith(_expectedDomain)) {
+  //       setState(() {
+  //         _domainErrorMessage =
+  //             'Please log in with your college email address.';
+  //       });
+  //       setState(() {
+  //         _isLoading = false;
+  //       });
+  //       return;
+  //     }
+
+  //     UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+  //       email: _emailController.text.trim(),
+  //       password: _passwordController.text.trim(),
+  //     );
+
+  //     User? user = userCredential.user;
+
+  //     if (user != null) {
+  //       if (!user.emailVerified) {
+  //         setState(() {
+  //           _verificationMessage =
+  //               'Email is not verified. Please check your inbox.';
+  //         });
+
+  //         await user.sendEmailVerification();
+
+  //         return;
+  //       }
+
+  //       DocumentSnapshot userDoc =
+  //           await _firestore.collection('users').doc(user.uid).get();
+
+  //       Navigator.pushReplacement(
+  //         context,
+  //         MaterialPageRoute(builder: (_) => const HomePage()),
+  //       );
+  //     }
+  //   } on FirebaseAuthException catch (e) {
+  //     setState(() {
+  //       _errorMessage = e.code == 'user-not-found'
+  //           ? 'No user found for that email.'
+  //           : e.code == 'wrong-password'
+  //               ? 'Wrong password provided for that user.'
+  //               : 'Failed to log in. Please try again.';
+  //     });
+  //   } catch (e) {
+  //     setState(() {
+  //       _errorMessage = 'An error occurred. Please try again.';
+  //     });
+  //   } finally {
+  //     setState(() {
+  //       _isLoading = false;
+  //     });
+  //   }
+  // }
   Future<void> _login() async {
     setState(() {
       _isLoading = true;
@@ -36,7 +102,8 @@ class _LoginPageState extends State<LoginPage> {
       // Check if the email domain is correct
       if (!_emailController.text.trim().endsWith(_expectedDomain)) {
         setState(() {
-          _domainErrorMessage = 'Please log in with your college email address.';
+          _domainErrorMessage =
+              'Please log in with your college email address.';
         });
         setState(() {
           _isLoading = false;
@@ -44,6 +111,7 @@ class _LoginPageState extends State<LoginPage> {
         return;
       }
 
+      // Sign in user
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
@@ -52,6 +120,7 @@ class _LoginPageState extends State<LoginPage> {
       User? user = userCredential.user;
 
       if (user != null) {
+        // Check if the email is verified
         if (!user.emailVerified) {
           setState(() {
             _verificationMessage =
@@ -60,21 +129,37 @@ class _LoginPageState extends State<LoginPage> {
 
           await user.sendEmailVerification();
 
+          // Optionally log out the user if email is not verified
+          await _auth.signOut();
+          setState(() {
+            _isLoading = false;
+          });
           return;
         }
 
+        // Check if user document exists in Firestore
         DocumentSnapshot userDoc =
             await _firestore.collection('users').doc(user.uid).get();
 
         if (!userDoc.exists) {
-          await _firestore.collection('users').doc(user.uid).set({
-            'email': user.email,
-            'displayName': user.displayName ?? 'User',
-            'photoURL': user.photoURL ?? '',
-            'createdAt': Timestamp.now(),
+          // Show a message to the user if their data does not exist in Firestore
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content:
+                  Text('User data not found'),
+              backgroundColor: Colors.red,
+            ),
+          );
+
+          // Optionally log out the user if document doesn't exist
+          await _auth.signOut();
+          setState(() {
+            _isLoading = false;
           });
+          return;
         }
 
+        // Navigate to HomePage
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => const HomePage()),
@@ -175,8 +260,8 @@ class _LoginPageState extends State<LoginPage> {
                       if (_domainErrorMessage != null)
                         Text(
                           _domainErrorMessage!,
-                          style: const TextStyle(
-                              color: Colors.red, fontSize: 16),
+                          style:
+                              const TextStyle(color: Colors.red, fontSize: 16),
                           textAlign: TextAlign.center,
                         ),
                       const SizedBox(height: 16),
@@ -211,7 +296,7 @@ class _LoginPageState extends State<LoginPage> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (_) => const SignUpPage()));
+                                  builder: (_) =>  const SignUpPage()));
                         },
                         child: const Text(
                           'Don\'t have an account? Sign Up',

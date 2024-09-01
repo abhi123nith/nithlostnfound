@@ -6,8 +6,10 @@ import 'package:intl/intl.dart';
 class PostCard extends StatelessWidget {
   final String postId;
   final String description;
-  final String userProfile;
+  final String profilePicUrl;
   final String userName;
+  final String currentuserId;
+  final String postmakerUserId;
   final Timestamp? timestamp;
   final List<String> imageUrls;
   final bool isLiked;
@@ -17,12 +19,15 @@ class PostCard extends StatelessWidget {
   final String location;
   final String? specificlocation;
   final bool isLost;
+  final int likeCount;
+  final int shareCount;
+  final int commentCount;
 
   const PostCard({
     super.key,
     required this.postId,
     required this.description,
-    required this.userProfile,
+    required this.profilePicUrl,
     required this.userName,
     required this.timestamp,
     required this.imageUrls,
@@ -31,18 +36,63 @@ class PostCard extends StatelessWidget {
     required this.onShare,
     required this.onComment,
     required this.location,
-    required this.isLost,
     this.specificlocation,
+    required this.currentuserId,
+    required this.postmakerUserId,
+    required this.likeCount,
+    required this.shareCount,
+    required this.commentCount,
+    required this.isLost,
   });
 
-  String _formatTimestamp(Timestamp? timestamp) {
-    if (timestamp == null) {
-      return 'Found on Unknown date';
-    }
+  String _formatTimestamp(Timestamp timestamp) {
     final date = timestamp.toDate();
     final dateFormat = DateFormat('d MMMM yyyy');
     final timeFormat = DateFormat('hh:mm a');
     return '${dateFormat.format(date)} at ${timeFormat.format(date)}';
+  }
+
+  void _showDeleteDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Post'),
+          content: const Text('Are you sure you want to delete this post?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop(); // Close the dialog
+                await _deletePost(context); // Perform the delete action
+                 ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Post deleted successfully')),
+      );
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _deletePost(BuildContext context) async {
+    String collectionname = isLost ? 'lost_items' : 'found_items';
+    try {
+      await FirebaseFirestore.instance.collection(collectionname).doc(postId).delete();
+     
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to delete post: $e')),
+      );
+    }
   }
 
   @override
@@ -75,27 +125,36 @@ class PostCard extends StatelessWidget {
                     children: [
                       CircleAvatar(
                         radius: 40,
-                        backgroundImage: NetworkImage(userProfile),
-                        child: userProfile.isEmpty
-                            ? const Icon(Icons.person, size: 40)
+                        backgroundImage: profilePicUrl.isNotEmpty
+                            ? NetworkImage(profilePicUrl)
+                            : null,
+                        child: profilePicUrl.isEmpty
+                            ? const Icon(Icons.person)
                             : null,
                       ),
                       const SizedBox(width: 8),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(userName,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 18)),
-                          Text('Location: $displayLocation'),
-                          Row(
-                            children: [
-                              Text(isLost ? 'Lost' : 'Found'),
-                              Text(' on: ${_formatTimestamp(timestamp)}'),
-                            ],
-                          ),
-                        ],
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(userName,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 18)),
+                            Text('Location: $displayLocation'),
+                            Row(
+                              children: [
+                                Text(isLost ? 'Lost' : 'Found'),
+                                Text(' on: ${_formatTimestamp(timestamp!)}'),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
+                      if (currentuserId == postmakerUserId)
+                        IconButton(
+                          onPressed: () => _showDeleteDialog(context),
+                          icon: const Icon(Icons.more_vert),
+                        ),
                     ],
                   ),
                 ),
@@ -140,14 +199,17 @@ class PostCard extends StatelessWidget {
                       ),
                       onPressed: onLike,
                     ),
+                    Text('$likeCount'),
                     IconButton(
                       icon: const Icon(Icons.share),
                       onPressed: onShare,
                     ),
+                    Text('$shareCount'),
                     IconButton(
                       icon: const Icon(Icons.comment),
                       onPressed: onComment,
                     ),
+                    Text('$commentCount'),
                   ],
                 ),
               ],

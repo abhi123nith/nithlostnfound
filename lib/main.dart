@@ -14,6 +14,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+   PaintingBinding.instance.imageCache.clear();
   runApp(const MyApp());
 }
 
@@ -31,7 +32,7 @@ class MyApp extends StatelessWidget {
       ),
       home: const AuthWrapper(), // Use AuthWrapper to decide the start screen
       routes: {
-        '/profile': (context) => const ProfilePage(),
+        '/profile': (context) =>  const ProfilePage(),
         '/settings': (context) => const SettingsPage(),
         '/login': (context) => const LoginPage(),
         '/home': (context) => const HomePage(),

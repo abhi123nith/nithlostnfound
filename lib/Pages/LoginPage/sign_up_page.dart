@@ -13,6 +13,7 @@ class SignUpPage extends StatefulWidget {
 class _SignUpPageState extends State<SignUpPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  
 
   final _formKey = GlobalKey<FormState>();
 
@@ -50,7 +51,7 @@ class _SignUpPageState extends State<SignUpPage> {
         );
 
         User? user = userCredential.user;
-
+final userProfilePicUrl = user?.photoURL ?? 'assets/nith_logo.png';
         // Send verification email
         if (user != null && !user.emailVerified) {
           await user.sendEmailVerification();
@@ -62,6 +63,7 @@ class _SignUpPageState extends State<SignUpPage> {
           'name': _nameController.text.trim(),
           'email': user.email,
           'joinedDate': DateTime.now(),
+          'profileImage':userProfilePicUrl,
         });
 
         ScaffoldMessenger.of(context).showSnackBar(

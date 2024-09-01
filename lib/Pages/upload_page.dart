@@ -1,10 +1,10 @@
-import 'dart:typed_data'; // for Uint8List
-
+import 'dart:typed_data'; 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:nithlostnfound/user_profile_image.dart';
 
 class UploadItemPage extends StatefulWidget {
   final bool isLostItem;
@@ -20,8 +20,23 @@ class _UploadItemPageState extends State<UploadItemPage> {
   String _selectedItemType = 'All';
   String _description = '';
   String? _selectedSpecificLocation;
-  bool _isLoading = false; // Loading state for the submit button
-  bool _isSuccess = false; // Success state after uploading
+  bool _isLoading = false;
+  bool _isSuccess = false;
+  User user = FirebaseAuth.instance.currentUser!;
+  String? profileImage;
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserProfileImage();
+  }
+
+  //getting user profile image and storing along with post data so other users can see and can directly access it
+  Future<void> _fetchUserProfileImage() async {
+    String? profileImageUrl = await getUserProfileImage(user.uid);
+    setState(() {
+      profileImage = profileImageUrl;
+    });
+  }
 
   final List<String> _locations = [
     'Campus, NITH',
@@ -114,219 +129,115 @@ class _UploadItemPageState extends State<UploadItemPage> {
     }
   }
 
-//   Future<void> _submitData() async {
-//     if (!mounted) return;
+  Future<void> _submitData() async {
+    if (!mounted) return;
 
-//     if (_description.isEmpty) {
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         const SnackBar(content: Text('Description is required')),
-//       );
-//       return;
-//     }
-
-//     if (_selectedLocation.isEmpty) {
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         const SnackBar(content: Text('Location is required')),
-//       );
-//       return;
-//     }
-
-//     if ((_selectedLocation == 'Boys Hostel' ||
-//     _selectedLocation == 'Girls Hostel' ||
-//     _selectedLocation == 'Department') &&
-//     (_selectedSpecificLocation == null || _selectedSpecificLocation!.isEmpty)) {
-//   ScaffoldMessenger.of(context).showSnackBar(
-//     SnackBar(content: Text('$_selectedLocation name is required')),
-//   );
-//   return;
-// }
-
-
-//     if (_selectedItemType.isEmpty) {
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         const SnackBar(content: Text('Item type is required')),
-//       );
-//       return;
-//     }
-
-//     if (_imageBytes == null || _imageBytes!.isEmpty) {
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         const SnackBar(content: Text('Please select at least one image')),
-//       );
-//       return;
-//     }
-
-//     setState(() {
-//       _isLoading = true;
-//       _isSuccess = false;
-//     });
-
-//     try {
-//       final FirebaseFirestore firestore = FirebaseFirestore.instance;
-//       final FirebaseStorage storage = FirebaseStorage.instance;
-//       User user = FirebaseAuth.instance.currentUser!;
-//       List<String> imageUrls = [];
-
-//       // Upload images to Firebase Storage
-//       for (var i = 0; i < _imageBytes!.length; i++) {
-//         final imageByteData = _imageBytes![i];
-//         final fileName =
-//             'images/${DateTime.now().millisecondsSinceEpoch}_$i.jpg';
-//         final ref = storage.ref().child(fileName);
-
-//         await ref.putData(imageByteData);
-//         final url = await ref.getDownloadURL();
-//         imageUrls.add(url);
-//       }
-
-//       String username = user.email!.split('@')[0].toUpperCase();
-//       final data = {
-//         'location': _selectedLocation == 'Campus, NITH'
-//             ? _selectedLocation
-//             : '$_selectedLocation, NITH',
-//         'specificLocation': _selectedSpecificLocation,
-//         'itemType': _selectedItemType,
-//         'description': _description,
-//         'imageUrls': imageUrls,
-//         'postmaker': username,
-//         'timestamp': FieldValue.serverTimestamp(),
-//       };
-
-//       final collectionName = widget.isLostItem ? 'lost_items' : 'found_items';
-
-//       // Add the data to Firestore
-//       await firestore.collection(collectionName).add(data);
-
-//       setState(() {
-//         _isLoading = false;
-//         _isSuccess = true;
-//       });
-
-//       // Show success message and navigate back
-//       if (mounted) {
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           const SnackBar(content: Text('Item uploaded successfully!')),
-//         );
-//         Navigator.of(context).pop();
-//       }
-//     } catch (e) {
-//       setState(() {
-//         _isLoading = false;
-//         _isSuccess = false;
-//       });
-//       print('Error submitting data: $e');
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         const SnackBar(content: Text('Error uploading item')),
-//       );
-//     }
-//   }
-Future<void> _submitData() async {
-  if (!mounted) return;
-
-  if (_description.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Description is required')),
-    );
-    return;
-  }
-
-  if (_selectedLocation.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Location is required')),
-    );
-    return;
-  }
-
-  if ((_selectedLocation == 'Boys Hostel' ||
-      _selectedLocation == 'Girls Hostel' ||
-      _selectedLocation == 'Department') &&
-      (_selectedSpecificLocation == null || _selectedSpecificLocation!.isEmpty)) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$_selectedLocation name is required')),
-    );
-    return;
-  }
-
-  if (_selectedItemType.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Item type is required')),
-    );
-    return;
-  }
-
-  if (_imageBytes == null || _imageBytes!.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Please select at least one image')),
-    );
-    return;
-  }
-
-  setState(() {
-    _isLoading = true;
-    _isSuccess = false;
-  });
-
-  try {
-    final FirebaseFirestore firestore = FirebaseFirestore.instance;
-    final FirebaseStorage storage = FirebaseStorage.instance;
-    User user = FirebaseAuth.instance.currentUser!;
-    List<String> imageUrls = [];
-
-    // Resize and upload images concurrently
-    final uploadFutures = _imageBytes!.asMap().entries.map((entry) async {
-      final index = entry.key;
-      final imageByteData = entry.value;
-      final fileName =
-          'images/${DateTime.now().millisecondsSinceEpoch}_$index.jpg';
-      final ref = storage.ref().child(fileName);
-      await ref.putData(imageByteData);
-      return ref.getDownloadURL();
-    });
-
-    imageUrls = await Future.wait(uploadFutures);
-
-    String username = user.email!.split('@')[0].toUpperCase();
-    final data = {
-      'location': _selectedLocation == 'Campus, NITH'
-          ? _selectedLocation
-          : '$_selectedLocation, NITH',
-      'specificLocation': _selectedSpecificLocation,
-      'itemType': _selectedItemType,
-      'description': _description,
-      'imageUrls': imageUrls,
-      'postmaker': username,
-      'timestamp': FieldValue.serverTimestamp(),
-    };
-
-    final collectionName = widget.isLostItem ? 'lost_items' : 'found_items';
-
-    // Add the data to Firestore
-    await firestore.collection(collectionName).add(data);
-
-    setState(() {
-      _isLoading = false;
-      _isSuccess = true;
-    });
-
-    // Show success message and navigate back
-    if (mounted) {
+    if (_description.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Item uploaded successfully!')),
+        const SnackBar(content: Text('Description is required')),
       );
-      Navigator.of(context).pop();
+      return;
     }
-  } catch (e) {
+
+    if (_selectedLocation.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Location is required')),
+      );
+      return;
+    }
+
+    if ((_selectedLocation == 'Boys Hostel' ||
+            _selectedLocation == 'Girls Hostel' ||
+            _selectedLocation == 'Department') &&
+        (_selectedSpecificLocation == null ||
+            _selectedSpecificLocation!.isEmpty)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$_selectedLocation name is required')),
+      );
+      return;
+    }
+
+    if (_selectedItemType.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Item type is required')),
+      );
+      return;
+    }
+
+    if (_imageBytes == null || _imageBytes!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select at least one image')),
+      );
+      return;
+    }
+
     setState(() {
-      _isLoading = false;
+      _isLoading = true;
       _isSuccess = false;
     });
-    print('Error submitting data: $e');
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Error uploading item')),
-    );
-  }
-}
 
+    try {
+      final FirebaseFirestore firestore = FirebaseFirestore.instance;
+      final FirebaseStorage storage = FirebaseStorage.instance;
+      User user = FirebaseAuth.instance.currentUser!;
+
+      List<String> imageUrls = [];
+
+      // Resize and upload images concurrently
+      final uploadFutures = _imageBytes!.asMap().entries.map((entry) async {
+        final index = entry.key;
+        final imageByteData = entry.value;
+        final fileName =
+            'images/${DateTime.now().millisecondsSinceEpoch}_$index.jpg';
+        final ref = storage.ref().child(fileName);
+        await ref.putData(imageByteData);
+        return ref.getDownloadURL();
+      });
+
+      imageUrls = await Future.wait(uploadFutures);
+
+      String username = user.email!.split('@')[0].toUpperCase();
+      final data = {
+        'location': _selectedLocation == 'Campus, NITH'
+            ? _selectedLocation
+            : '$_selectedLocation, NITH',
+        'specificLocation': _selectedSpecificLocation,
+        'itemType': _selectedItemType,
+        'description': _description,
+        'imageUrls': imageUrls,
+        'postmaker': username,
+        'userProfile': profileImage,
+        'timestamp': FieldValue.serverTimestamp(),
+        'postmakerUserId':user.uid,
+      };
+
+      final collectionName = widget.isLostItem ? 'lost_items' : 'found_items';
+
+      await firestore.collection(collectionName).add(data);
+
+      setState(() {
+        _isLoading = false;
+        _isSuccess = true;
+      });
+
+      // Show success message and navigate back
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Item uploaded successfully!')),
+        );
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _isSuccess = false;
+      });
+      print('Error submitting data: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error uploading item')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
