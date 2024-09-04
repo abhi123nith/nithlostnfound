@@ -1,5 +1,6 @@
 class MenuItems {
-  static const List<String> itemTypes = [
+  List<String> itemTypes = [
+    'All',
     'ID Card',
     'Book',
     'Mobile Phone',
@@ -14,7 +15,7 @@ class MenuItems {
     'Shoes',
     'Umbrella',
     'Keys',
-    'Electronics',
+    'Electronic Item',
     'Water bottle',
     'Clothing',
     'Books',
@@ -22,7 +23,7 @@ class MenuItems {
   ];
 
   static const List<String> locations = [
-    'Campus',
+    'Campus, NITH',
     'Boys Hostel',
     'Girls Hostel',
     'Department',
@@ -49,27 +50,27 @@ class MenuItems {
   ];
 
   static const List<String> boysHostels = [
-    'Boys Hostel 1',
-    'Boys Hostel 2',
-    'Boys Hostel 3',
+    'KBH',
+    'NBH',
+    'DBH',
+    'Himgiri',
+    'Himadri',
+    'UBH',
+    'VBH'
   ];
 
-  static const List<String> girlsHostels = [
-    'Girls Hostel 1',
-    'Girls Hostel 2',
-    'Girls Hostel 3',
-  ];
+  static const List<String> girlsHostels = ['AGH', 'PGH', 'MMH', 'Satpura'];
 
   static const List<String> departments = [
-    'Computer Science',
-    'Electronics',
+    'CSE',
+    'ECE',
     'Mechanical',
     'Civil',
     'Electrical',
     'Chemical',
-    'Biotechnology',
-    'Mathematics',
-    'Physics',
-    'Chemistry',
+    'Material',
+    'MNC',
+    'Architecture',
+    'EP',
   ];
 }

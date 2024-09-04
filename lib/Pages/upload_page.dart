@@ -1,4 +1,5 @@
-import 'dart:typed_data'; 
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -17,20 +18,20 @@ class UploadItemPage extends StatefulWidget {
 class _UploadItemPageState extends State<UploadItemPage> {
   List<Uint8List>? _imageBytes;
   String _selectedLocation = 'Campus, NITH';
-  String _selectedItemType = 'All';
+  String _selectedItemType = 'ID Card';
   String _description = '';
   String? _selectedSpecificLocation;
   bool _isLoading = false;
   bool _isSuccess = false;
   User user = FirebaseAuth.instance.currentUser!;
   String? profileImage;
+
   @override
   void initState() {
     super.initState();
     _fetchUserProfileImage();
   }
 
-  //getting user profile image and storing along with post data so other users can see and can directly access it
   Future<void> _fetchUserProfileImage() async {
     String? profileImageUrl = await getUserProfileImage(user.uid);
     setState(() {
@@ -91,7 +92,6 @@ class _UploadItemPageState extends State<UploadItemPage> {
   ];
 
   final List<String> _itemTypes = [
-    'All',
     'ID Card',
     'Book',
     'Mobile Phone',
@@ -106,9 +106,9 @@ class _UploadItemPageState extends State<UploadItemPage> {
     'Shoes',
     'Umbrella',
     'Keys',
-    'Electronics',
+    'Electronics Item',
     'Water bottle',
-    'Clothing',
+    'Cloth',
     'Other',
   ];
 
@@ -170,6 +170,10 @@ class _UploadItemPageState extends State<UploadItemPage> {
       );
       return;
     }
+    if (_selectedSpecificLocation == '') {
+      _selectedSpecificLocation =
+          "Not provided"; // or handle the absence of the value accordingly
+    }
 
     setState(() {
       _isLoading = true;
@@ -183,7 +187,6 @@ class _UploadItemPageState extends State<UploadItemPage> {
 
       List<String> imageUrls = [];
 
-      // Resize and upload images concurrently
       final uploadFutures = _imageBytes!.asMap().entries.map((entry) async {
         final index = entry.key;
         final imageByteData = entry.value;
@@ -197,10 +200,13 @@ class _UploadItemPageState extends State<UploadItemPage> {
       imageUrls = await Future.wait(uploadFutures);
 
       String username = user.email!.split('@')[0].toUpperCase();
+      
+      final locationString = _selectedLocation=='Campus, NITH'?_selectedLocation :
+      _selectedSpecificLocation != null && _selectedSpecificLocation!.isNotEmpty
+        ? '$_selectedSpecificLocation, $_selectedLocation, NITH'
+        : '$_selectedLocation, NITH';
       final data = {
-        'location': _selectedLocation == 'Campus, NITH'
-            ? _selectedLocation
-            : '$_selectedLocation, NITH',
+        'location': locationString,
         'specificLocation': _selectedSpecificLocation,
         'itemType': _selectedItemType,
         'description': _description,
@@ -208,10 +214,12 @@ class _UploadItemPageState extends State<UploadItemPage> {
         'postmaker': username,
         'userProfile': profileImage,
         'timestamp': FieldValue.serverTimestamp(),
-        'postmakerUserId':user.uid,
+        'postmakerUserId': user.uid,
       };
 
       final collectionName = widget.isLostItem ? 'lost_items' : 'found_items';
+
+      print('Submitting data: $data'); // Debug statement
 
       await firestore.collection(collectionName).add(data);
 
@@ -220,7 +228,6 @@ class _UploadItemPageState extends State<UploadItemPage> {
         _isSuccess = true;
       });
 
-      // Show success message and navigate back
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Item uploaded successfully!')),
@@ -232,24 +239,37 @@ class _UploadItemPageState extends State<UploadItemPage> {
         _isLoading = false;
         _isSuccess = false;
       });
-      print('Error submitting data: $e');
+      print('Error submitting data: $e'); // Debug statement
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error uploading item')),
       );
     }
   }
 
+  void _removeImage(int index) {
+    setState(() {
+      _imageBytes!.removeAt(index);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.deepOrange.shade400,
+        backgroundColor: const Color(0xFF1D2671), // Deep blue color
         title:
             Text(widget.isLostItem ? 'Upload Lost Item' : 'Upload Found Item'),
       ),
       body: Container(
-        decoration: BoxDecoration(
-          color: Colors.deepOrange.shade200,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFF1D2671),
+              Color(0xFFC33764)
+            ], // Deep blue to dark magenta
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
         ),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -285,8 +305,7 @@ class _UploadItemPageState extends State<UploadItemPage> {
                         onChanged: (value) {
                           setState(() {
                             _selectedLocation = value!;
-                            _selectedSpecificLocation =
-                                null; // Reset the specific location
+                            _selectedSpecificLocation = null;
                           });
                         },
                         decoration: const InputDecoration(
@@ -353,10 +372,11 @@ class _UploadItemPageState extends State<UploadItemPage> {
                       ),
                       const SizedBox(height: 20),
                       TextField(
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
+                          fillColor: Colors.white.withOpacity(0.2),
                           labelText: 'Description',
                           alignLabelWithHint: true,
-                          border: OutlineInputBorder(),
+                          border: const OutlineInputBorder(),
                         ),
                         maxLines: 4,
                         onChanged: (text) {
@@ -372,7 +392,7 @@ class _UploadItemPageState extends State<UploadItemPage> {
                         label: const Text('Upload Images'),
                         style: ElevatedButton.styleFrom(
                           foregroundColor: Colors.white,
-                          backgroundColor: Colors.deepOrange,
+                          backgroundColor: Colors.deepOrange, // Deep blue color
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -384,8 +404,30 @@ class _UploadItemPageState extends State<UploadItemPage> {
                             itemCount: _imageBytes!.length,
                             itemBuilder: (context, index) {
                               return Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Image.memory(_imageBytes![index]),
+                                padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Stack(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: Image.memory(
+                                        _imageBytes![index],
+                                        width: 100,
+                                        height: 100,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    Positioned(
+                                      top: 0,
+                                      right: 0,
+                                      child: IconButton(
+                                        icon: const Icon(Icons.cancel,
+                                            color: Colors.red),
+                                        onPressed: () => _removeImage(index),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               );
                             },
                           ),
@@ -404,26 +446,19 @@ class _UploadItemPageState extends State<UploadItemPage> {
                                 ? Colors.grey
                                 : _isSuccess
                                     ? Colors.green
-                                    : Colors.deepOrange,
+                                    : Colors.deepOrange, // Deep blue color
                           ),
                           child: _isLoading
                               ? const SizedBox(
                                   width: 24,
                                   height: 24,
                                   child: CircularProgressIndicator(
-                                    strokeWidth: 2.0,
                                     color: Colors.white,
                                   ),
                                 )
-                              : _isSuccess
-                                  ? const Icon(Icons.check_circle)
-                                  : const Text(
-                                      'Post',
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold),
-                                    ),
+                              : Text(widget.isLostItem
+                                  ? 'Upload Lost Item'
+                                  : 'Upload Found Item'),
                         ),
                       ),
                     ],

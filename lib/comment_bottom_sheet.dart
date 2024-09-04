@@ -2,12 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:nithlostnfound/user_profile_image.dart';
+import 'package:nithlostnfound/user_profile_page.dart'; // Import the user profile page
 
 class CommentsBottomSheet extends StatefulWidget {
   final String postId;
   final bool isLost;
-  const CommentsBottomSheet(
-      {super.key, required this.postId, required this.isLost});
+  const CommentsBottomSheet({super.key, required this.postId, required this.isLost});
 
   @override
   _CommentsBottomSheetState createState() => _CommentsBottomSheetState();
@@ -18,13 +18,14 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
 
   User user = FirebaseAuth.instance.currentUser!;
   String? profileImage;
+
   @override
   void initState() {
     super.initState();
     _fetchUserProfileImage();
   }
 
-  //getting user profile image and storing along with post data so other users can see and can directly access it
+  // Getting user profile image and storing along with post data so other users can see and can directly access it
   Future<void> _fetchUserProfileImage() async {
     String? profileImageUrl = await getUserProfileImage(user.uid);
     setState(() {
@@ -37,40 +38,35 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
     commentController.dispose();
     super.dispose();
   }
+
   String formatRelativeTime(Timestamp? timestamp) {
-  if (timestamp == null) return 'now';
-  
-  final now = DateTime.now();
-  final postTime = timestamp.toDate();
-  final difference = now.difference(postTime);
- if(difference.inSeconds<60){
-  return '${difference.inSeconds} seconds${difference.inSeconds == 1 ? '' : 's'} ago';
+    if (timestamp == null) return 'now';
+
+    final now = DateTime.now();
+    final postTime = timestamp.toDate();
+    final difference = now.difference(postTime);
+    if (difference.inSeconds < 60) {
+      return '${difference.inSeconds} seconds${difference.inSeconds == 1 ? '' : 's'} ago';
+    } else if (difference.inMinutes < 60) {
+      return '${difference.inMinutes} minutes${difference.inMinutes == 1 ? '' : 's'} ago';
+    } else if (difference.inHours < 24) {
+      return '${difference.inHours} hour${difference.inHours == 1 ? '' : 's'} ago';
+    } else if (difference.inDays < 7) {
+      return '${difference.inDays} day${difference.inDays == 1 ? '' : 's'} ago';
+    } else {
+      int weeks = (difference.inDays / 7).floor();
+      return '$weeks week${weeks == 1 ? '' : 's'} ago';
+    }
   }
- else if(difference.inMinutes<60){
-  return '${difference.inMinutes} minutes${difference.inMinutes == 1 ? '' : 's'} ago';
-  }
-  
-else  if (difference.inHours < 24) {
-    return '${difference.inHours} hour${difference.inHours == 1 ? '' : 's'} ago';
-  }
-  
-   else if (difference.inDays < 7) {
-    return '${difference.inDays} day${difference.inDays == 1 ? '' : 's'} ago';
-  } else {
-    int weeks = (difference.inDays / 7).floor();
-    return '$weeks week${weeks == 1 ? '' : 's'} ago';
-  }
-}
 
   Future<void> _addComment(String postId, String commentText) async {
     String username = user.email!.split('@')[0].toUpperCase();
-    String collectionname = widget.isLost ? 'lost_items' : 'found_items';
-
+    String collectionName = widget.isLost ? 'lost_items' : 'found_items';
 
     if (commentText.isNotEmpty) {
       try {
         await FirebaseFirestore.instance
-            .collection(collectionname)
+            .collection(collectionName)
             .doc(postId)
             .collection('comments')
             .add({
@@ -85,7 +81,6 @@ else  if (difference.inHours < 24) {
       }
     }
   }
-  
 
   @override
   Widget build(BuildContext context) {
@@ -138,27 +133,37 @@ else  if (difference.inHours < 24) {
                   final comments = snapshot.data!.docs.map((doc) {
                     final data = doc.data() as Map<String, dynamic>;
                     final text = data['text'] ?? '';
-                    final userProfile =
-                        data['userProfile'] ?? 'assets/nith_logo.pn';
+                    final userProfile = data['userProfile'] ?? 'assets/nith_logo.png';
                     final userName = data['userName'] ?? 'NITH_USER';
                     final commentTime = data['timestamp'] ?? '';
-                    return ListTile(
-                      leading: CircleAvatar(
-                        radius: 30,
-                        backgroundImage: userProfile.isNotEmpty
-                            ? NetworkImage(userProfile)
-                            : const NetworkImage('asets/nith_logo.png'),
-                        child: userProfile.isEmpty
-                            ? const Icon(Icons.person, size: 30)
-                            : null,
-                      ),
-                      title: Text(userName),
-                      subtitle: Row(
-                        children: [
-                          Text(text),
-                        const  Spacer(),
-                        Text(formatRelativeTime(commentTime).toString()),
-                        ],
+                    final userId = data['userId'] ?? '';
+
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => UserProfilePage(userId: userId),
+                          ),
+                        );
+                      },
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          radius: 30,
+                          backgroundImage: userProfile.isNotEmpty
+                              ? NetworkImage(userProfile)
+                              : const NetworkImage('assets/nith_logo.png'),
+                          child: userProfile.isEmpty
+                              ? const Icon(Icons.person, size: 30)
+                              : null,
+                        ),
+                        title: Text(userName),
+                        subtitle: Row(
+                          children: [
+                            Expanded(child: Text(text)),
+                            Text(formatRelativeTime(commentTime).toString()),
+                          ],
+                        ),
                       ),
                     );
                   }).toList();

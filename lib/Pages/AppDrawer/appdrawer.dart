@@ -21,6 +21,7 @@ class AppDrawer extends StatelessWidget {
     User? user = FirebaseAuth.instance.currentUser;
     String email = user!.email!;
     return Drawer(
+      backgroundColor: Colors.white.withOpacity(0.8),
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
@@ -48,21 +49,21 @@ class AppDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.person, color: Colors.blue),
-            title: const Text('Profile'),
+            title: const Text('Profile',style: TextStyle(fontWeight: FontWeight.bold),),
             onTap: () {
               Navigator.pushNamed(context, '/profile');
             },
           ),
           ListTile(
             leading: const Icon(Icons.settings, color: Colors.blue),
-            title: const Text('Settings'),
+            title: const Text('Settings',style: TextStyle(fontWeight: FontWeight.bold),),
             onTap: () {
               Navigator.pushNamed(context, '/settings');
             },
           ),
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.blue),
-            title: const Text('Logout'),
+            title: const Text('Logout',style: TextStyle(fontWeight: FontWeight.bold),),
             onTap: () {
               _showLogoutDialog(context);
             },

@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // For date formatting
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+  const ProfilePage({super.key});
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -17,9 +17,8 @@ class _ProfilePageState extends State<ProfilePage> {
   late Future<Map<String, dynamic>?> _userDetails;
   String? _profileImageUrl;
   String? _updatedName;
-  bool _isUploading = false;
   bool _isEditing = false;
-  bool _isUpdating = false; // Track the update process
+  bool _isUpdating = false; 
   String? _initialName;
 
   @override
@@ -45,7 +44,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> _updateProfile() async {
     setState(() {
-      _isUpdating = true; // Show the progress indicator
+      _isUpdating = true; 
     });
 
     User? user = FirebaseAuth.instance.currentUser;
@@ -65,13 +64,12 @@ class _ProfilePageState extends State<ProfilePage> {
           .doc(user.uid)
           .update(updatedData);
 
-      // Reset changes after successful update
       setState(() {
         _updatedName = null;
         _profileImageUrl = null;
         _isEditing = false;
         _initialName = null;
-        _isUpdating = false; // Hide the progress indicator
+        _isUpdating = false; 
       });
 
       // Refresh user details
@@ -84,16 +82,12 @@ class _ProfilePageState extends State<ProfilePage> {
       );
     } else {
       setState(() {
-        _isUpdating = false; // Hide the progress indicator if no changes
+        _isUpdating = false; 
       });
     }
   }
 
   Future<void> _uploadProfileImage(Uint8List data) async {
-    setState(() {
-      _isUploading = true;
-    });
-
     try {
       final storageRef = FirebaseStorage.instance
           .ref()
@@ -107,10 +101,6 @@ class _ProfilePageState extends State<ProfilePage> {
       });
     } catch (e) {
       print('Error uploading image: $e');
-    } finally {
-      setState(() {
-        _isUploading = false;
-      });
     }
   }
 
@@ -137,8 +127,8 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
-        backgroundColor: Colors.deepPurpleAccent,
+        title: const Text('Profile',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
+        backgroundColor: Colors.blue.shade700, // Deep blue color
       ),
       body: FutureBuilder<Map<String, dynamic>?>(
         future: _userDetails,
@@ -162,112 +152,132 @@ class _ProfilePageState extends State<ProfilePage> {
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Stack(
-                  children: [
-                    CircleAvatar(
-                      radius: 60,
-                      backgroundColor: Colors.deepPurple,
-                      child: CircleAvatar(
-                        radius: 55,
-                        backgroundImage: profileImageUrl != null
-                            ? NetworkImage(profileImageUrl)
-                            : const AssetImage('assets/profile1.png')
-                                as ImageProvider,
-                      ),
-                    ),
-                    if (_isEditing) 
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: IconButton(
-                          icon: const Icon(Icons.camera_alt, color: Colors.white),
-                          onPressed: _pickImage,
-                        ),
-                      ),
-                  ],
+            child: Center(
+              child: Card(
+                color: Colors.white.withOpacity(0.8), // Slightly transparent white background
+                elevation: 5,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.0),
                 ),
-                const SizedBox(height: 16),
-                if (_isEditing) ...[
-                  TextField(
-                    decoration: InputDecoration(
-                      hintText: _initialName ?? name,
-                      border: const OutlineInputBorder(),
-                    ),
-                    onChanged: (newName) {
-                      _updatedName = newName;
-                    },
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: 60,
+                            backgroundColor: const Color(0xFF1D2671), // Deep blue color
+                            child: CircleAvatar(
+                              radius: 55,
+                              backgroundImage: profileImageUrl != null
+                                  ? NetworkImage(profileImageUrl)
+                                  : const AssetImage('assets/profile1.png') as ImageProvider,
+                            ),
+                          ),
+                          if (_isEditing) 
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: IconButton(
+                                icon: const Icon(Icons.camera_alt, color: Colors.black),
+                                onPressed: _pickImage,
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      if (_isEditing) ...[
+                        Padding(
+                          padding:  EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width*0.12),
+                          child: TextField(
+                            
+                            decoration: InputDecoration(
+                            
+                              hintText: _initialName ?? name,
+                              border:  OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12)
+                              ),
+                              filled: true,
+                              fillColor: Colors.white.withOpacity(0.8), // Slightly transparent white background
+                            ),
+                            onChanged: (newName) {
+                              _updatedName = newName;
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: _updateProfile,
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor:  Colors.deepOrange, // Deep blue color
+                          ),
+                          child: _isUpdating 
+                            ? const CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              )
+                            : const Text('Update'),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _isEditing = false;
+                              _updatedName = null; // Discard changes
+                              _profileImageUrl = null; // Discard image changes
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.blue,
+                          ),
+                          child: const Text('Cancel'),
+                        ),
+                      ] else ...[
+                        Text(
+                          'Name: $name',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Email: ${userData['email']}',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Joined Date: ${_formatDate(userData['joinedDate'] as Timestamp?)}',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _isEditing = true;
+                              _initialName = name; // Store the current name
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor:  Colors.deepOrange, // Deep blue color
+                          ),
+                          child: const Text('Edit'),
+                        ),
+                      ],
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: _updateProfile,
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: Colors.deepPurpleAccent,
-                    ),
-                    child: _isUpdating 
-                      ? const CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        )
-                      : const Text('Update'),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _isEditing = false;
-                        _updatedName = null; // Discard changes
-                        _profileImageUrl = null; // Discard image changes
-                      });
-                    },
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: Colors.grey,
-                    ),
-                    child: const Text('Cancel'),
-                  ),
-                ] else ...[
-                  Text(
-                    'Name: $name',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Email: ${userData['email']}',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Joined Date: ${_formatDate(userData['joinedDate'] as Timestamp?)}',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _isEditing = true;
-                        _initialName = name; // Store the current name
-                      });
-                    },
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: Colors.deepPurpleAccent,
-                    ),
-                    child: const Text('Edit'),
-                  ),
-                ],
-              ],
+                ),
+              ),
             ),
           );
         },

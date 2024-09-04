@@ -81,95 +81,104 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  void _showUploadDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(16.0), // Rounded corners for the dialog
+ void _showUploadDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.0), // Rounded corners for the dialog
+        ),
+        title: const Text(
+          'Select Item Type',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white, // Title text color
           ),
-          title: const Text(
-            'Select Item Type',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              const Text(
-                'Is this item a lost item or a found item?',
-                style: TextStyle(fontSize: 16),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            const Text(
+              'Is this item a lost item or a found item?',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.white, // Content text color
               ),
-              const SizedBox(height: 20), // Space between content and buttons
-              Card(
-                elevation: 5,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(
-                      12.0), // Rounded corners for the card
-                ),
-                child: Column(
-                  children: <Widget>[
-                    ListTile(
-                      leading:
-                          const Icon(Icons.remove_circle, color: Colors.blue),
-                      title: const Text(
-                        'Lost Item',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20), // Space between content and buttons
+            Card(
+              elevation: 5,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.0), // Rounded corners for the card
+              ),
+              color: Colors.white.withOpacity(0.8), // Card background color
+              child: Column(
+                children: <Widget>[
+                  ListTile(
+                    leading: const Icon(Icons.remove_circle, color: Color(0xFF1D2671)), // Deep blue color
+                    title: const Text(
+                      'Lost Item',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1D2671), // Deep blue color
                       ),
-                      onTap: () {
-                        Navigator.of(context).pop(); // Close the dialog
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                const UploadItemPage(isLostItem: true),
-                          ),
-                        );
-                      },
                     ),
-                    const Divider(),
-                    ListTile(
-                      leading:
-                          const Icon(Icons.add_circle, color: Colors.green),
-                      title: const Text(
-                        'Found Item',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                    onTap: () {
+                      Navigator.of(context).pop(); // Close the dialog
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const UploadItemPage(isLostItem: true),
+                        ),
+                      );
+                    },
+                  ),
+                  const Divider(),
+                  ListTile(
+                    leading: const Icon(Icons.add_circle, color: Color(0xFFC33764)), // Dark magenta color
+                    title: const Text(
+                      'Found Item',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFFC33764), // Dark magenta color
                       ),
-                      onTap: () {
-                        Navigator.of(context).pop(); // Close the dialog
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                const UploadItemPage(isLostItem: false),
-                          ),
-                        );
-                      },
                     ),
-                  ],
-                ),
+                    onTap: () {
+                      Navigator.of(context).pop(); // Close the dialog
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const UploadItemPage(isLostItem: false),
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
-            ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text(
-                'Close',
-                style: TextStyle(
-                  color: Colors.red,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
             ),
           ],
-        );
-      },
-    );
-  }
+        ),
+        actions: <Widget>[
+          TextButton(
+            child: const Text(
+              'Close',
+              style: TextStyle(
+                color: Colors.red,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+            },
+          ),
+        ],
+        backgroundColor: const Color.fromARGB(255, 95, 105, 191), // Deep blue background color
+      );
+    },
+  );
+}
+
 }
