@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:nithlostnfound/Pages/HomePage/homepage.dart';
 import 'package:nithlostnfound/Pages/LoginPage/login_page.dart';
 import 'package:nithlostnfound/Pages/Setting/setting_page.dart';
+import 'package:nithlostnfound/Pages/profile/profile.dart';
+import 'package:nithlostnfound/Widgets/firebase_options.dart';
 
-import 'Widgets/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,7 +14,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  PaintingBinding.instance.imageCache.clear();
+   PaintingBinding.instance.imageCache.clear();
   runApp(const MyApp());
 }
 
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
       ),
       home: const AuthWrapper(), // Use AuthWrapper to decide the start screen
       routes: {
+        '/profile': (context) =>  const ProfilePage(),
         '/settings': (context) => const SettingsPage(),
         '/login': (context) => const LoginPage(),
         '/home': (context) => const HomePage(),

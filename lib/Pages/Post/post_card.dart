@@ -115,14 +115,8 @@ class PostCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String displayLocation;
     if (specificlocation != null && specificlocation!.isNotEmpty) {
-      displayLocation = specificlocation == location
-          ? specificlocation!
-          : '$specificlocation, $location';
-    } else {
-      displayLocation = location;
-    }
+    } else {}
 
     final String itemStatus = isLost ? 'Lost' : 'Found';
     final String displayItemType = itemType == 'Other' ? '' : itemType;
@@ -159,15 +153,10 @@ class PostCard extends StatelessWidget {
                     child: Row(
                       children: [
                         CircleAvatar(
-                          radius: 40,
-                          backgroundImage: profilePicUrl.isNotEmpty
-                              ? NetworkImage(profilePicUrl)
-                              : const AssetImage('assets/nith_logo.png')
-                                  as ImageProvider,
-                          child: profilePicUrl.isEmpty
-                              ? const Icon(Icons.person, size: 50)
-                              : null,
-                        ),
+                            radius: 40,
+                            backgroundImage: profilePicUrl.isNotEmpty
+                                ? NetworkImage(profilePicUrl)
+                                : const AssetImage('assets/nith_logo.png')),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Column(

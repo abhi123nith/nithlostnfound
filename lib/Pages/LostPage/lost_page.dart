@@ -3,9 +3,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:nithlostnfound/Widgets/comment_bottom_sheet.dart';
 import 'package:nithlostnfound/Pages/Post/post_card.dart';
+import 'package:nithlostnfound/Widgets/comment_bottom_sheet.dart';
 import 'package:share_plus/share_plus.dart';
 
 class LostPage extends StatefulWidget {
@@ -145,16 +144,14 @@ class _LostPageState extends State<LostPage> {
   }
 
   Future<bool> _hasLikedPost(String postId) async {
-    final postDoc =
-        await _firestore.collection('lost_items').doc(postId).get();
+    final postDoc = await _firestore.collection('lost_items').doc(postId).get();
     final data = postDoc.data();
     final likes = data?['likes'] as List<dynamic>? ?? [];
     return likes.contains(userId);
   }
 
   Future<void> _sharePost(String postId) async {
-    final postDoc =
-        await _firestore.collection('lost_items').doc(postId).get();
+    final postDoc = await _firestore.collection('lost_items').doc(postId).get();
     final data = postDoc.data();
     final content = data?['description'] ?? 'Check out this post!';
     Share.share(content, subject: 'Lost Post');
@@ -182,6 +179,7 @@ class _LostPageState extends State<LostPage> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(80),
         child: AppBar(
+          leading: null,
           backgroundColor: const Color(0xFF1D2671), // Deep blue color
           flexibleSpace: Center(
             child: Column(
@@ -377,9 +375,6 @@ class _LostPageState extends State<LostPage> {
                 final postmakerId = data['postmakerUserId'] ?? '';
                 final likeCount = data['likeCount'] ?? 0;
                 final shareCount = data['shareCount'] ?? 0;
-                final formattedDate = timestamp != null
-                    ? DateFormat('yyyy-MM-dd').format(timestamp.toDate())
-                    : 'Unknown Date';
 
                 return FutureBuilder<bool>(
                   future: _hasLikedPost(postId),

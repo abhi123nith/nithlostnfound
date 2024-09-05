@@ -280,7 +280,7 @@ class _LoginPageState extends State<LoginPage> {
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
-                              child: const Text('Login'),
+                              child: const Text('Login',style: TextStyle(color: Colors.white),),
                             ),
                       const SizedBox(height: 16),
                       TextButton(

@@ -3,9 +3,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:nithlostnfound/Widgets/comment_bottom_sheet.dart';
 import 'package:nithlostnfound/Pages/Post/post_card.dart';
+import 'package:nithlostnfound/Widgets/comment_bottom_sheet.dart';
 import 'package:share_plus/share_plus.dart';
 
 class FoundPage extends StatefulWidget {
@@ -377,9 +376,6 @@ class _FoundPageState extends State<FoundPage> {
                 final postmakerId = data['postmakerUserId'] ?? '';
                 final likeCount = data['likeCount'] ?? 0;
                 final shareCount = data['shareCount'] ?? 0;
-                final formattedDate = timestamp != null
-                    ? DateFormat('yyyy-MM-dd').format(timestamp.toDate())
-                    : 'Unknown Date';
 
                 return FutureBuilder<bool>(
                   future: _hasLikedPost(postId),
@@ -423,7 +419,7 @@ class _FoundPageState extends State<FoundPage> {
                                         isLost: false,
                                         postId: postId,
                                         description: description,
-                                        profilePicUrl: userProfileId,
+                                        profilePicUrl: userProfileId==''?userProfileId:'assets/nith_logo.png',
                                         userName: userName,
                                         timestamp: timestamp,
                                         imageUrls: imageUrls,
