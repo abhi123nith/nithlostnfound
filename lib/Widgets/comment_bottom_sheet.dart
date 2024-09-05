@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:nithlostnfound/user_profile_image.dart';
-import 'package:nithlostnfound/user_profile_page.dart'; // Import the user profile page
+import 'package:nithlostnfound/Pages/profile/user_profile_image.dart';
+import 'package:nithlostnfound/Pages/profile/user_profile_page.dart';
 
 class CommentsBottomSheet extends StatefulWidget {
   final String postId;

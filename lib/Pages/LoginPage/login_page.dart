@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:nithlostnfound/Pages/LoginPage/sign_up_page.dart';
-import 'package:nithlostnfound/Pages/homepage.dart';
+import 'package:nithlostnfound/Pages/HomePage/homepage.dart';
+import 'package:nithlostnfound/Pages/SignUpPage/sign_up_page.dart';
+import 'package:nithlostnfound/Pages/Setting/reset_passwor.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -284,7 +285,10 @@ class _LoginPageState extends State<LoginPage> {
                       const SizedBox(height: 16),
                       TextButton(
                         onPressed: () {
-                          // Implement forgot password navigation
+                           Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) =>  const ResetPasswordPage()));
                         },
                         child: const Text(
                           'Forgot Password?',

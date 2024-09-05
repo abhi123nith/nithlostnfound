@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:nithlostnfound/Pages/Setting/about_page.dart';
+import 'package:nithlostnfound/Pages/Setting/reset_passwor.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -8,7 +10,7 @@ class SettingsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
-        backgroundColor: Colors.deepPurple, // AppBar background color
+        backgroundColor: Colors.deepOrange, // AppBar background color
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -20,7 +22,7 @@ class SettingsPage extends StatelessWidget {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Colors.deepPurple, // Header text color
+               // color: Colors.deepPurple, // Header text color
               ),
             ),
             const SizedBox(height: 16),
@@ -28,12 +30,12 @@ class SettingsPage extends StatelessWidget {
             // Edit Profile Setting
             ListTile(
               leading: const Icon(Icons.edit, color: Colors.deepPurple), // Icon color
-              title: const Text('Edit Profile'),
+              title: const Text('Reset Password'),
               onTap: () {
-                // Navigate to Edit Profile page
+               
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const EditProfilePage()),
+                  MaterialPageRoute(builder: (context) => const ResetPasswordPage()),
                 );
               },
               tileColor: Colors.deepPurple[50], // Tile background color
@@ -41,20 +43,7 @@ class SettingsPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            const SizedBox(height: 8),
-
-            // Notifications Setting
-            ListTile(
-              leading: const Icon(Icons.notifications, color: Colors.deepPurple),
-              title: const Text('Notifications'),
-              onTap: () {
-                // Implement notifications settings
-              },
-              tileColor: Colors.deepPurple[50],
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
+            
             const SizedBox(height: 8),
 
             // Privacy & Security Setting
@@ -83,7 +72,24 @@ class SettingsPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            // Add more settings options here
+            
+            const SizedBox(height: 8),
+
+            // Notifications Setting
+            ListTile(
+              leading: const Icon(Icons.notifications, color: Colors.deepPurple),
+              title: const Text('About Developer'),
+              onTap: () {
+                 Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AboutPage()),
+                );
+              },
+              tileColor: Colors.deepPurple[50],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
           ],
         ),
       ),

@@ -20,6 +20,7 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
 
   bool _isLoading = false;
 
@@ -30,6 +31,16 @@ class _SignUpPageState extends State<SignUpPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Please use your college email id'),
+            backgroundColor: Colors.deepOrange,
+            duration: Duration(seconds: 5),
+          ),
+        );
+        return;
+      }
+       if (_phoneController.text.trim().length<10) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Invalid Mobile Number'),
             backgroundColor: Colors.deepOrange,
             duration: Duration(seconds: 5),
           ),
@@ -64,6 +75,7 @@ class _SignUpPageState extends State<SignUpPage> {
           'email': user.email,
           'joinedDate': DateTime.now(),
           'profileImage': userProfilePicUrl,
+          'phonenumber':_phoneController.text.trim(),
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -175,6 +187,25 @@ class _SignUpPageState extends State<SignUpPage> {
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Please enter your email';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                            TextFormField(
+                            controller: _phoneController,
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Colors.white.withOpacity(0.2),
+                              labelText: 'Phone Number',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              labelStyle: const TextStyle(color: Colors.white70),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your phone number';
                               }
                               return null;
                             },

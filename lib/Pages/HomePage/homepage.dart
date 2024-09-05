@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:nithlostnfound/Pages/AppDrawer/appdrawer.dart';
-import 'package:nithlostnfound/Pages/found_page.dart';
-import 'package:nithlostnfound/Pages/lost_page.dart';
-import 'package:nithlostnfound/Pages/upload_page.dart';
+import 'package:nithlostnfound/Pages/FoundPage/found_page.dart';
+import 'package:nithlostnfound/Pages/LostPage/lost_page.dart';
+import 'package:nithlostnfound/Pages/UploadPage/upload_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});

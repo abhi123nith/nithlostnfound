@@ -70,6 +70,7 @@ class UserProfilePage extends StatelessWidget {
         final userData = snapshot.data!;
         final email = userData['email'] ?? 'No email provided';
         final username = userData['name'] ?? 'NITH_USER';
+        final phonenumber = userData['phonenumber'] ?? '1234567890';
         final profilePicUrl = userData['profileImage'] ?? '';
         final joinedDate =
             (userData['joinedDate'] as Timestamp?)?.toDate() ?? DateTime.now();
@@ -79,7 +80,7 @@ class UserProfilePage extends StatelessWidget {
 
         return Scaffold(
           appBar: AppBar(
-            title: Text(username),
+            title: Text(username,style:const TextStyle(color: Colors.white,fontWeight: FontWeight.bold)),
             backgroundColor: const Color(0xFF1D2671), // Deep blue
           ),
           body: Container(
@@ -139,6 +140,15 @@ class UserProfilePage extends StatelessWidget {
                             color: Colors.black87,
                           ),
                         ),
+                        Text(
+                        'Number:  $phonenumber',
+                          style: const TextStyle(
+                            fontSize: 20, // Increased font size
+                           
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
                         Text(
                           'Joined: $joinedDateString',
                           style: const TextStyle(

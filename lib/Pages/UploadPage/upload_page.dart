@@ -5,7 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:nithlostnfound/user_profile_image.dart';
+import 'package:nithlostnfound/Pages/profile/user_profile_image.dart';
 
 class UploadItemPage extends StatefulWidget {
   final bool isLostItem;
@@ -59,7 +59,7 @@ class _UploadItemPageState extends State<UploadItemPage> {
     'Admin Block',
     'Central Block',
     'Food Court',
-    'Nasecafe DBH',
+    'Nescafe DBH',
     'GATE 1',
     'GATE 2',
     'Temple',

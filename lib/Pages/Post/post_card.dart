@@ -2,8 +2,8 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:nithlostnfound/full_screen_image_viewer.dart';
-import 'user_profile_page.dart'; // Import the new user profile page
+import 'package:nithlostnfound/Pages/profile/user_profile_page.dart';
+import 'package:nithlostnfound/Widgets/full_screen_image_viewer.dart';
 
 class PostCard extends StatelessWidget {
   final String postId;
