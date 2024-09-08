@@ -369,7 +369,7 @@ class _FoundPageState extends State<FoundPage> {
                 final location = data['location'] ?? '';
                 final specificLocation = data['specificLocation'] ?? '';
                 final itemType = data['itemType'] ?? '';
-                final userProfileId = data['userProfile'] ?? '';
+                final userProfileId = data['userProfile'] ?? 'assets/nith_logo.png';
                 final userName = data['postmaker'] ?? 'NITH_USER';
                 final timestamp = data['timestamp'] as Timestamp?;
                 final imageUrls = List<String>.from(data['imageUrls'] ?? []);
