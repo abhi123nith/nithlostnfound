@@ -7,7 +7,7 @@ import 'package:nithlostnfound/Pages/Post/post_card.dart';
 import 'package:nithlostnfound/Widgets/comment_bottom_sheet.dart';
 import 'package:share_plus/share_plus.dart';
 
-//Lost page loading
+//Lost page 
 class LostPage extends StatefulWidget {
   const LostPage({super.key});
 
