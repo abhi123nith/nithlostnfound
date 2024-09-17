@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:nithlostnfound/Pages/LoginPage/login_page.dart';
 
+//Sign Up PAGE
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
 
